@@ -55,7 +55,6 @@
                                     <td>
                                         <c:choose>
                                             <c:when test="${m.winnerTeam != null}">
-                                                <!-- Match Completed - Show Read-Only Results -->
                                                 <div style="display: flex; flex-direction: column; gap: 10px;">
                                                     <div
                                                         style="padding: 10px; background: #e8f5e9; border-radius: 5px; border: 2px solid #4CAF50;">
@@ -74,9 +73,7 @@
                                                 </div>
                                             </c:when>
                                             <c:otherwise>
-                                                <!-- Match Not Completed - Show Forms -->
                                                 <div style="display: flex; flex-direction: column; gap: 10px;">
-                                                    <!-- Set Toss Time -->
                                                     <form action="${pageContext.request.contextPath}/match/admin/toss"
                                                         method="post" class="form-inline">
                                                         <input type="hidden" name="matchId" value="${m.matchId}">
@@ -87,7 +84,6 @@
                                                             Toss Time</button>
                                                     </form>
 
-                                                    <!-- Set Toss Winner (Separate from Match Result) -->
                                                     <c:choose>
                                                         <c:when test="${m.tossWinnerTeam != null}">
                                                             <div
@@ -123,7 +119,6 @@
                                                         </c:otherwise>
                                                     </c:choose>
 
-                                                    <!-- Match Result Form -->
                                                     <form action="${pageContext.request.contextPath}/match/admin/result"
                                                         method="post"
                                                         style="display: flex; flex-direction: column; gap: 8px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background: #f9f9f9;">

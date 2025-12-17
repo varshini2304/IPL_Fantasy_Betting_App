@@ -98,6 +98,10 @@
                             <div class="team-name">${match.team2.teamName}</div>
                         </div>
 
+                        <div class="countdown" id="countdown">
+                            <div>⏰ Time Remaining to Predict:</div>
+                            <div class="countdown-timer" id="countdown-timer">Calculating...</div>
+                        </div>
 
                         <c:if test="${not empty existing}">
                             <div class="existing-prediction">
@@ -294,78 +298,150 @@
                 </div>
 
                 <script>
-<c:if test="${match.matchStartTime != null}">
-(function () {
+                    // Team Selection Functions
+                    function selectTeam(teamId, button) {
+                        const selectedTeamInput = document.getElementById('selectedTeamId');
+                        if (selectedTeamInput) {
+                            selectedTeamInput.value = teamId;
+                        }
+                        // Update button styles - remove selected from all team buttons in the match winner section
+                        const matchWinnerSection = button.closest('.prediction-section');
+                        if (matchWinnerSection) {
+                            const teamButtons = matchWinnerSection.querySelectorAll('button[type="button"]');
+                            teamButtons.forEach(btn => {
+                                btn.classList.remove('btn-selected');
+                            });
+                        }
+                        button.classList.add('btn-selected');
+                        console.log('Team selected:', teamId);
+                    }
 
-    const raw = "${match.matchStartTime}".trim();
-    console.log("Raw matchStartTime:", raw);
-    const cleaned = raw.split(".")[0];
+                    function selectToss(teamId, button) {
+                        const selectedTossInput = document.getElementById('selectedTossId');
+                        if (selectedTossInput) {
+                            selectedTossInput.value = teamId;
+                        }
+                        // Update button styles - remove selected from all toss buttons in the toss section
+                        const tossSection = button.closest('.prediction-section');
+                        if (tossSection) {
+                            const tossButtons = tossSection.querySelectorAll('button[type="button"]');
+                            tossButtons.forEach(btn => {
+                                btn.classList.remove('btn-selected');
+                            });
+                        }
+                        button.classList.add('btn-selected');
+                        console.log('Toss winner selected:', teamId);
+                    }
 
-    const parts = cleaned.split(" ");
-    if (parts.length !== 2) {
-        document.getElementById("countdown-timer").innerHTML = "Invalid match time";
-        return;
-    }
+                    // Countdown Timer
+                    <c:if test="${match.matchStartTime != null}">
+                    (function() {
+                        const matchStartTimeStr = '${match.matchStartTime}';
+                        console.log('Raw matchStartTime from server:', matchStartTimeStr);
 
-    const [datePart, timePart] = parts;
-    const [year, month, day] = datePart.split("-").map(Number);
-    const time = timePart.split(":").map(Number);
+                        let matchStartTime;
+                        try {
+                            // LocalDateTime.toString() returns format like "2025-12-16T19:00" or "2025-12-16 19:00"
+                            let dateStr = matchStartTimeStr.trim();
+                            
+                            // Replace T with space if present
+                            if (dateStr.includes('T')) {
+                                dateStr = dateStr.replace('T', ' ');
+                            }
 
-    const hour = time[0] || 0;
-    const minute = time[1] || 0;
-    const second = time[2] || 0;
+                            // Split into date and time parts
+                            const dateTimeParts = dateStr.split(' ');
+                            if (dateTimeParts.length < 2) {
+                                throw new Error('Invalid date format - missing time part');
+                            }
 
-    const matchStartTime = new Date(
-        year,
-        month - 1,
-        day,
-        hour,
-        minute,
-        second
-    ).getTime();
+                            const dateParts = dateTimeParts[0].split('-');
+                            const timeParts = dateTimeParts[1].split(':');
 
-    if (isNaN(matchStartTime)) {
-        document.getElementById("countdown-timer").innerHTML = "Invalid match time";
-        return;
-    }
+                            if (dateParts.length !== 3) {
+                                throw new Error('Invalid date format - date parts');
+                            }
 
-    function updateCountdown() {
-        const now = Date.now();
-        const distance = matchStartTime - now;
+                            if (timeParts.length < 2) {
+                                throw new Error('Invalid time format');
+                            }
 
-        const countdownEl = document.getElementById("countdown");
-        const timerEl = document.getElementById("countdown-timer");
-        const form = document.getElementById("predictionForm");
-        const submitBtn = document.getElementById("submitBtn");
+                            // Create date in local timezone (month is 0-indexed in JS)
+                            matchStartTime = new Date(
+                                parseInt(dateParts[0]),          // year
+                                parseInt(dateParts[1]) - 1,      // month (0-based)
+                                parseInt(dateParts[2]),          // day
+                                parseInt(timeParts[0]),          // hour
+                                parseInt(timeParts[1] || 0),     // minute
+                                0                                // seconds
+                            ).getTime();
 
-        if (distance <= 0) {
-            timerEl.innerHTML = "🚫 Match Started! Predictions Closed";
-            countdownEl.classList.add("expired");
+                            console.log('Parsed match start time:', new Date(matchStartTime));
+                            
+                            if (isNaN(matchStartTime)) {
+                                throw new Error('Invalid date - NaN result');
+                            }
+                        } catch (e) {
+                            console.error('Error parsing date:', e, 'Original string:', matchStartTimeStr);
+                            // Fallback to ISO string parsing
+                            matchStartTime = new Date(matchStartTimeStr).getTime();
+                            if (isNaN(matchStartTime)) {
+                                console.error('Fallback parsing also failed');
+                            }
+                        }
 
-            if (form) form.style.opacity = "0.5";
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.textContent = "Prediction Closed";
-            }
-            return;
-        }
+                        function updateCountdown() {
+                            const now = new Date().getTime();
+                            const distance = matchStartTime - now;
 
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance / (1000 * 60 * 60)) % 24);
-        const minutes = Math.floor((distance / (1000 * 60)) % 60);
-        const seconds = Math.floor((distance / 1000) % 60);
+                            const countdownEl = document.getElementById('countdown');
+                            const timerEl = document.getElementById('countdown-timer');
+                            const form = document.getElementById('predictionForm');
+                            const submitBtn = document.getElementById('submitBtn');
 
-        timerEl.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-    }
+                            if (isNaN(matchStartTime) || isNaN(now)) {
+                                if (timerEl) {
+                                    timerEl.innerHTML = "⏰ Calculating...";
+                                }
+                                return;
+                            }
 
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
+                            if (distance <= 0) {
+                                if (timerEl) {
+                                    timerEl.innerHTML = "🚫 Match Started! Predictions Closed";
+                                }
+                                if (countdownEl) {
+                                    countdownEl.classList.add('expired');
+                                }
+                                if (form) {
+                                    form.style.opacity = '0.5';
+                                }
+                                if (submitBtn) {
+                                    submitBtn.disabled = true;
+                                    submitBtn.textContent = 'Prediction Closed';
+                                }
+                                return;
+                            }
 
-})();
-</c:if>
-</script>
+                            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
+                            if (timerEl) {
+                                timerEl.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+                            }
+                        }
+
+                        // Initialize countdown immediately
+                        updateCountdown();
+                        // Update every second
+                        setInterval(updateCountdown, 1000);
+                    })();
+                    </c:if>
+                </script>
 
             </body>
 
             </html>
+

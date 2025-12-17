@@ -13,7 +13,7 @@
         <body>
             <div class="container">
                 <div class="header">
-                    <h1>🏏 IPL Fantasy League</h1>
+                    <h1> IPL Fantasy League</h1>
                     <h2>Match Management</h2>
                 </div>
 

@@ -98,11 +98,6 @@
                             <div class="team-name">${match.team2.teamName}</div>
                         </div>
 
-                        <!-- Countdown Timer -->
-                        <div class="countdown" id="countdown">
-                            <div>⏰ Time Remaining to Predict:</div>
-                            <div class="countdown-timer" id="countdown-timer">Calculating...</div>
-                        </div>
 
                         <c:if test="${not empty existing}">
                             <div class="existing-prediction">
@@ -132,7 +127,6 @@
                             id="predictionForm">
                             <input type="hidden" name="matchId" value="${match.matchId}">
 
-                            <!-- Match Winner Prediction -->
                             <div class="prediction-section">
                                 <h3>🏆 Match Winner</h3>
                                 <div class="prediction-buttons">
@@ -151,7 +145,6 @@
                                     value="${existing != null ? existing.predictedTeam.teamId : ''}" required>
                             </div>
 
-                            <!-- Toss Winner Prediction -->
                             <div class="prediction-section">
                                 <h3>🪙 Toss Winner</h3>
                                 <c:choose>
@@ -183,12 +176,10 @@
                                 </c:choose>
                             </div>
 
-                            <!-- Top Scorer -->
                             <div class="prediction-section">
                                 <h3>⚡ Top Scorer</h3>
                                 <div class="form-group">
                                     <label for="topScorer">Select Player:</label>
-                                    <!-- Debug: Team1 players count: ${team1Players.size()}, Team2 players count: ${team2Players.size()} -->
                                     <select id="topScorer" name="topScorer">
                                         <option value="">-- Select Player --</option>
                                         <c:choose>
@@ -233,7 +224,6 @@
                                 </div>
                             </div>
 
-                            <!-- Man of the Match -->
                             <div class="prediction-section">
                                 <h3>⭐ Man of the Match</h3>
                                 <div class="form-group">
@@ -282,7 +272,6 @@
                                 </div>
                             </div>
 
-                            <!-- Total Runs Range -->
                             <div class="prediction-section">
                                 <h3>📊 Total Runs (Range)</h3>
                                 <div class="form-group">
@@ -305,92 +294,78 @@
                 </div>
 
                 <script>
-                    // Countdown Timer
-                    <c:if test="${match.matchStartTime != null}">
-                        (function() {
-                        // LocalDateTime.toString() returns ISO format like "2025-12-16T19:00"
-                        const matchStartTimeStr = '${match.matchStartTime}';
-                        console.log('Match start time string:', matchStartTimeStr);
+<c:if test="${match.matchStartTime != null}">
+(function () {
 
-                        // Parse the date properly - LocalDateTime format is "YYYY-MM-DDTHH:mm"
-                        let matchStartTime;
-                        try {
-                            // Ensure proper format for JavaScript Date parsing
-                            const dateStr = matchStartTimeStr.replace('T', ' ');
-                        // Parse as: "YYYY-MM-DD HH:mm"
-                        const [datePart, timePart] = dateStr.split(' ');
-                        const [year, month, day] = datePart.split('-');
-                        const [hour, minute] = timePart.split(':');
-                        // Create date in local timezone (month is 0-indexed in JS)
-                        matchStartTime = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute), 0).getTime();
-                        console.log('Parsed match start time:', new Date(matchStartTime));
-                        } catch (e) {
-                            console.error('Error parsing date:', e);
-                        // Fallback to ISO string parsing
-                        matchStartTime = new Date(matchStartTimeStr).getTime();
-                        }
+    const raw = "${match.matchStartTime}".trim();
+    console.log("Raw matchStartTime:", raw);
+    const cleaned = raw.split(".")[0];
 
-                        function updateCountdown() {
-                            const now = new Date().getTime();
-                        const distance = matchStartTime - now;
+    const parts = cleaned.split(" ");
+    if (parts.length !== 2) {
+        document.getElementById("countdown-timer").innerHTML = "Invalid match time";
+        return;
+    }
 
-                        const countdownEl = document.getElementById('countdown');
-                        const timerEl = document.getElementById('countdown-timer');
-                        const form = document.getElementById('predictionForm');
-                        const submitBtn = document.getElementById('submitBtn');
+    const [datePart, timePart] = parts;
+    const [year, month, day] = datePart.split("-").map(Number);
+    const time = timePart.split(":").map(Number);
 
-                        if (isNaN(matchStartTime) || isNaN(now)) {
-                                if (timerEl) timerEl.innerHTML = "⏰ Calculating...";
-                        return;
-                            }
+    const hour = time[0] || 0;
+    const minute = time[1] || 0;
+    const second = time[2] || 0;
 
-                        if (distance < 0) {
-                                if (timerEl) timerEl.innerHTML = "⏰ Deadline Passed!";
-                        if (countdownEl) countdownEl.classList.add('expired');
-                        if (form) form.style.opacity = '0.5';
-                        if (submitBtn) {
-                            submitBtn.disabled = true;
-                        submitBtn.textContent = 'Prediction Window Closed';
-                                }
-                        return;
-                            }
+    const matchStartTime = new Date(
+        year,
+        month - 1,
+        day,
+        hour,
+        minute,
+        second
+    ).getTime();
 
-                        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    if (isNaN(matchStartTime)) {
+        document.getElementById("countdown-timer").innerHTML = "Invalid match time";
+        return;
+    }
 
-                        if (timerEl) {
-                            timerEl.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-                            }
-                        }
+    function updateCountdown() {
+        const now = Date.now();
+        const distance = matchStartTime - now;
 
-                        // Initialize countdown immediately
-                        updateCountdown();
-                        // Update every second
-                        setInterval(updateCountdown, 1000);
-                    })();
-                    </c:if>
+        const countdownEl = document.getElementById("countdown");
+        const timerEl = document.getElementById("countdown-timer");
+        const form = document.getElementById("predictionForm");
+        const submitBtn = document.getElementById("submitBtn");
 
-                    function selectTeam(teamId, button) {
-                        document.getElementById('selectedTeamId').value = teamId;
-                        // Update button styles
-                        document.querySelectorAll('[name="teamId"]').forEach(btn => {
-                            btn.classList.remove('btn-selected');
-                        });
-                        button.classList.add('btn-selected');
-                    }
+        if (distance <= 0) {
+            timerEl.innerHTML = "🚫 Match Started! Predictions Closed";
+            countdownEl.classList.add("expired");
 
-                    function selectToss(teamId, button) {
-                        document.getElementById('selectedTossId').value = teamId;
-                        // Update button styles
-                        const parent = button.parentElement;
-                        parent.querySelectorAll('button').forEach(btn => {
-                            btn.classList.remove('btn-selected');
-                        });
-                        button.classList.add('btn-selected');
-                    }
-                </script>
+            if (form) form.style.opacity = "0.5";
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = "Prediction Closed";
+            }
+            return;
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((distance / (1000 * 60)) % 60);
+        const seconds = Math.floor((distance / 1000) % 60);
+
+        timerEl.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+
+})();
+</c:if>
+</script>
+
+
             </body>
 
             </html>
