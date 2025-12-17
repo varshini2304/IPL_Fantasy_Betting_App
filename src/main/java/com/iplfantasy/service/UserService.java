@@ -8,6 +8,8 @@ public interface UserService {
 
     User login(String username, String plainPassword);
 
+    User loginByEmail(String email, String plainPassword);
+
     User getById(Long id);
 
     User getByUsername(String username);

@@ -29,15 +29,15 @@ public class AuthController {
 
     @PostMapping("/login")
     public String doLogin(
-            @RequestParam String username,
+            @RequestParam String email,
             @RequestParam String password,
             Model model,
             HttpSession session) {
 
-        User user = userService.login(username, password);
+        User user = userService.loginByEmail(email, password);
 
         if (user == null) {
-            model.addAttribute("error", "Invalid username or password!");
+            model.addAttribute("error", "Invalid email or password!");
             return "login";
         }
 
@@ -48,7 +48,6 @@ public class AuthController {
                 : "redirect:/dashboard";
     }
 
-   
     @GetMapping("/admin/login")
     public String adminLoginPage(HttpSession session) {
         if (session.getAttribute("user") != null) {

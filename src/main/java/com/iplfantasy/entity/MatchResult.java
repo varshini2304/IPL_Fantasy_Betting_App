@@ -23,8 +23,12 @@ public class MatchResult {
     private Match match;
 
     @ManyToOne
-    @JoinColumn(name = "winner_team_id", nullable = false)
+    @JoinColumn(name = "winner_team_id", nullable = true)
     private Team winnerTeam;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean isDraw = false;
 
     @ManyToOne
     @JoinColumn(name = "toss_winner_team_id")

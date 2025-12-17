@@ -42,7 +42,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public User login(String username, String plainPassword) {
         User user = repo.findByUsername(username);
-        if (user == null) return null;
+        if (user == null)
+            return null;
+
+        return encoder.matches(plainPassword, user.getPassword()) ? user : null;
+    }
+
+    @Override
+    public User loginByEmail(String email, String plainPassword) {
+        User user = repo.findByEmail(email);
+        if (user == null)
+            return null;
 
         return encoder.matches(plainPassword, user.getPassword()) ? user : null;
     }
@@ -65,7 +75,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public void createUser(String username, String email, String password, String userType) {
 
-        if (repo.findByUsername(username) != null) return;
+        if (repo.findByUsername(username) != null)
+            return;
 
         User user = User.builder()
                 .username(username)

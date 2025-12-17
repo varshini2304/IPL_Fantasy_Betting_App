@@ -131,22 +131,28 @@ public class MatchController {
     @PostMapping("/admin/result")
     public String setMatchResult(
             @RequestParam Long matchId,
-            @RequestParam Long winnerTeamId,
+            @RequestParam(required = false) Long winnerTeamId,
             @RequestParam(required = false) Long tossWinnerTeamId,
             @RequestParam(required = false) String manOfTheMatch,
             @RequestParam(required = false) String topScorer,
             @RequestParam(required = false) Integer winningTeamScore,
+            @RequestParam(required = false) Boolean isDraw,
             HttpSession session) {
 
         User u = (User) session.getAttribute("user");
         if (!isAdmin(u))
             return "redirect:/admin/login";
 
-        Team winner = teamService.getById(winnerTeamId);
+        Team winner = null;
+        if (winnerTeamId != null) {
+            winner = teamService.getById(winnerTeamId);
+        }
+
         matchService.setMatchResult(matchId, winner,
                 manOfTheMatch != null && !manOfTheMatch.trim().isEmpty() ? manOfTheMatch.trim() : null,
                 topScorer != null && !topScorer.trim().isEmpty() ? topScorer.trim() : null,
-                winningTeamScore);
+                winningTeamScore,
+                isDraw != null && isDraw);
 
         return "redirect:/match/admin/list";
     }

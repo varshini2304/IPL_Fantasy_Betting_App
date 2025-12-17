@@ -298,13 +298,11 @@
                 </div>
 
                 <script>
-                    // Team Selection Functions
                     function selectTeam(teamId, button) {
                         const selectedTeamInput = document.getElementById('selectedTeamId');
                         if (selectedTeamInput) {
                             selectedTeamInput.value = teamId;
                         }
-                        // Update button styles - remove selected from all team buttons in the match winner section
                         const matchWinnerSection = button.closest('.prediction-section');
                         if (matchWinnerSection) {
                             const teamButtons = matchWinnerSection.querySelectorAll('button[type="button"]');
@@ -321,7 +319,6 @@
                         if (selectedTossInput) {
                             selectedTossInput.value = teamId;
                         }
-                        // Update button styles - remove selected from all toss buttons in the toss section
                         const tossSection = button.closest('.prediction-section');
                         if (tossSection) {
                             const tossButtons = tossSection.querySelectorAll('button[type="button"]');
@@ -333,7 +330,6 @@
                         console.log('Toss winner selected:', teamId);
                     }
 
-                    // Countdown Timer
                     <c:if test="${match.matchStartTime != null}">
                     (function() {
                         const matchStartTimeStr = '${match.matchStartTime}';
@@ -341,15 +337,12 @@
 
                         let matchStartTime;
                         try {
-                            // LocalDateTime.toString() returns format like "2025-12-16T19:00" or "2025-12-16 19:00"
                             let dateStr = matchStartTimeStr.trim();
                             
-                            // Replace T with space if present
                             if (dateStr.includes('T')) {
                                 dateStr = dateStr.replace('T', ' ');
                             }
 
-                            // Split into date and time parts
                             const dateTimeParts = dateStr.split(' ');
                             if (dateTimeParts.length < 2) {
                                 throw new Error('Invalid date format - missing time part');
@@ -366,14 +359,13 @@
                                 throw new Error('Invalid time format');
                             }
 
-                            // Create date in local timezone (month is 0-indexed in JS)
                             matchStartTime = new Date(
-                                parseInt(dateParts[0]),          // year
-                                parseInt(dateParts[1]) - 1,      // month (0-based)
-                                parseInt(dateParts[2]),          // day
-                                parseInt(timeParts[0]),          // hour
-                                parseInt(timeParts[1] || 0),     // minute
-                                0                                // seconds
+                                parseInt(dateParts[0]),        
+                                parseInt(dateParts[1]) - 1,     
+                                parseInt(dateParts[2]),        
+                                parseInt(timeParts[0]),          
+                                parseInt(timeParts[1] || 0),   
+                                0                               
                             ).getTime();
 
                             console.log('Parsed match start time:', new Date(matchStartTime));
@@ -383,7 +375,6 @@
                             }
                         } catch (e) {
                             console.error('Error parsing date:', e, 'Original string:', matchStartTimeStr);
-                            // Fallback to ISO string parsing
                             matchStartTime = new Date(matchStartTimeStr).getTime();
                             if (isNaN(matchStartTime)) {
                                 console.error('Fallback parsing also failed');
@@ -433,9 +424,7 @@
                             }
                         }
 
-                        // Initialize countdown immediately
                         updateCountdown();
-                        // Update every second
                         setInterval(updateCountdown, 1000);
                     })();
                     </c:if>

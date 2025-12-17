@@ -13,7 +13,7 @@
         <body>
             <div class="container">
                 <div class="header">
-                    <h1>🏏 IPL Fantasy League</h1>
+                    <h1> IPL Fantasy League</h1>
                     <h2>Match Management</h2>
                 </div>
 
@@ -46,6 +46,9 @@
                                     </td>
                                     <td>
                                         <c:choose>
+                                            <c:when test="${m.result != null && m.result.isDraw}">
+                                                <strong style="color: #ff9800;">Match Drawn</strong>
+                                            </c:when>
                                             <c:when test="${not empty m.winnerTeam}">
                                                 <strong style="color: #3c3;">${m.winnerTeam.teamName}</strong>
                                             </c:when>
@@ -54,6 +57,25 @@
                                     </td>
                                     <td>
                                         <c:choose>
+                                            <c:when test="${m.result != null && m.result.isDraw}">
+                                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                                    <div
+                                                        style="padding: 10px; background: #fff3e0; border-radius: 5px; border: 2px solid #ff9800;">
+                                                        <strong style="font-size: 14px; color: #e65100;">⚖️ Match
+                                                            Drawn</strong>
+                                                        <div style="margin-top: 8px;">
+                                                            <strong>Result:</strong> Match ended in a draw. All
+                                                            predictors received equal points.
+                                                        </div>
+                                                        <c:if test="${m.tossWinnerTeam != null}">
+                                                            <div style="margin-top: 5px;">
+                                                                <strong>Toss Won By:</strong>
+                                                                ${m.tossWinnerTeam.teamName}
+                                                            </div>
+                                                        </c:if>
+                                                    </div>
+                                                </div>
+                                            </c:when>
                                             <c:when test="${m.winnerTeam != null}">
                                                 <div style="display: flex; flex-direction: column; gap: 10px;">
                                                     <div
@@ -120,14 +142,24 @@
                                                     </c:choose>
 
                                                     <form action="${pageContext.request.contextPath}/match/admin/result"
-                                                        method="post"
+                                                        method="post" id="resultForm_${m.matchId}"
                                                         style="display: flex; flex-direction: column; gap: 8px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background: #f9f9f9;">
                                                         <input type="hidden" name="matchId" value="${m.matchId}">
                                                         <div>
                                                             <label
+                                                                style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-weight: bold; font-size: 14px; color: #d32f2f;">
+                                                                <input type="checkbox" name="isDraw"
+                                                                    id="isDraw_${m.matchId}"
+                                                                    onchange="toggleDrawMode(${m.matchId})"
+                                                                    style="width: 18px; height: 18px; cursor: pointer;">
+                                                                <span>Match Ended in Draw</span>
+                                                            </label>
+                                                        </div>
+                                                        <div id="winnerSection_${m.matchId}">
+                                                            <label
                                                                 style="display: block; margin-bottom: 5px; font-weight: bold; font-size: 12px;">Winner
                                                                 Team:</label>
-                                                            <select name="winnerTeamId" required
+                                                            <select name="winnerTeamId" id="winnerTeamId_${m.matchId}"
                                                                 style="width: 100%; padding: 5px;">
                                                                 <option value="">Select Winner</option>
                                                                 <option value="${m.team1.teamId}">${m.team1.teamName}
@@ -225,6 +257,24 @@
 
                 <a href="${pageContext.request.contextPath}/admin" class="back-link">← Back to Admin Panel</a>
             </div>
+
+            <script>
+                function toggleDrawMode(matchId) {
+                    const isDrawCheckbox = document.getElementById('isDraw_' + matchId);
+                    const winnerSection = document.getElementById('winnerSection_' + matchId);
+                    const winnerSelect = document.getElementById('winnerTeamId_' + matchId);
+                    const form = document.getElementById('resultForm_' + matchId);
+
+                    if (isDrawCheckbox.checked) {
+                        winnerSection.style.display = 'none';
+                        winnerSelect.removeAttribute('required');
+                        winnerSelect.value = '';
+                    } else {
+                        winnerSection.style.display = 'block';
+                        winnerSelect.setAttribute('required', 'required');
+                    }
+                }
+            </script>
         </body>
 
         </html>

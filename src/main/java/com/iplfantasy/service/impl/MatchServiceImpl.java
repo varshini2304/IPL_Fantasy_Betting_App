@@ -89,7 +89,6 @@ public class MatchServiceImpl implements MatchService {
             existingResult.setUpdatedAt(LocalDateTime.now());
             resultRepo.update(existingResult);
         }
-       
 
         predictionService.lockTossPredictions(match);
     }
@@ -102,10 +101,20 @@ public class MatchServiceImpl implements MatchService {
     @Override
     public void setMatchResult(Long matchId, Team winnerTeam, String manOfTheMatch, String topScorer,
             Integer winningTeamScore) {
+        setMatchResult(matchId, winnerTeam, manOfTheMatch, topScorer, winningTeamScore, false);
+    }
+
+    @Override
+    public void setMatchResult(Long matchId, Team winnerTeam, String manOfTheMatch, String topScorer,
+            Integer winningTeamScore, Boolean isDraw) {
 
         Match match = get(matchId);
 
-        match.setWinnerTeam(winnerTeam);
+        if (isDraw != null && isDraw) {
+            match.setWinnerTeam(null);
+        } else {
+            match.setWinnerTeam(winnerTeam);
+        }
         match.setMatchStatus(MatchStatus.COMPLETED);
         matchRepo.update(match);
 
@@ -114,7 +123,13 @@ public class MatchServiceImpl implements MatchService {
 
         if (existingResult != null) {
             result = existingResult;
-            result.setWinnerTeam(winnerTeam);
+            if (isDraw != null && isDraw) {
+                result.setWinnerTeam(null);
+                result.setIsDraw(true);
+            } else {
+                result.setWinnerTeam(winnerTeam);
+                result.setIsDraw(false);
+            }
             result.setManOfTheMatch(manOfTheMatch);
             result.setTopScorer(topScorer);
             result.setWinningTeamScore(winningTeamScore);
@@ -124,11 +139,12 @@ public class MatchServiceImpl implements MatchService {
             Team tossWinner = match.getTossWinnerTeam();
             result = MatchResult.builder()
                     .match(match)
-                    .winnerTeam(winnerTeam)
+                    .winnerTeam(isDraw != null && isDraw ? null : winnerTeam)
                     .tossWinner(tossWinner)
                     .manOfTheMatch(manOfTheMatch)
                     .topScorer(topScorer)
                     .winningTeamScore(winningTeamScore)
+                    .isDraw(isDraw != null ? isDraw : false)
                     .updatedAt(LocalDateTime.now())
                     .build();
             resultRepo.save(result);
@@ -136,8 +152,10 @@ public class MatchServiceImpl implements MatchService {
 
         predictionService.awardPoints(match);
 
-        winnerTeam.setCurrentPoints(winnerTeam.getCurrentPoints() + 2);
-        teamRepo.update(winnerTeam);
+        if (!(isDraw != null && isDraw) && winnerTeam != null) {
+            winnerTeam.setCurrentPoints(winnerTeam.getCurrentPoints() + 2);
+            teamRepo.update(winnerTeam);
+        }
     }
 
     @Override

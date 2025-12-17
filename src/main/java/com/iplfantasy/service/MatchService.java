@@ -9,24 +9,27 @@ import java.util.List;
 
 public interface MatchService {
 
-    Match create(Team t1, Team t2, LocalDateTime startTime);
+        Match create(Team t1, Team t2, LocalDateTime startTime);
 
-    Match get(Long id);
+        Match get(Long id);
 
-    List<Match> getAll();
+        List<Match> getAll();
 
-    List<Match> getUpcoming();
+        List<Match> getUpcoming();
 
-    List<Match> getCurrentMatches();
+        List<Match> getCurrentMatches();
 
-    void setToss(Long matchId, LocalDateTime tossTime);
+        void setToss(Long matchId, LocalDateTime tossTime);
 
-    void setTossWinner(Long matchId, Team tossWinnerTeam);
+        void setTossWinner(Long matchId, Team tossWinnerTeam);
 
-    void setWinner(Long matchId, Team winnerTeam);
+        void setWinner(Long matchId, Team winnerTeam);
 
-    void setMatchResult(Long matchId, Team winnerTeam, String manOfTheMatch, String topScorer,
-            Integer winningTeamScore);
+        void setMatchResult(Long matchId, Team winnerTeam, String manOfTheMatch, String topScorer,
+                        Integer winningTeamScore);
 
-    void updateStatus(Long matchId, MatchStatus status);
+        void setMatchResult(Long matchId, Team winnerTeam, String manOfTheMatch, String topScorer,
+                        Integer winningTeamScore, Boolean isDraw);
+
+        void updateStatus(Long matchId, MatchStatus status);
 }

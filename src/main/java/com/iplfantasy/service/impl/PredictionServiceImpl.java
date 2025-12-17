@@ -202,20 +202,87 @@ public class PredictionServiceImpl implements PredictionService {
 
     @Override
     public void lockTossPredictions(Match match) {
-     
+
     }
 
     @Override
     public void awardPoints(Match match) {
 
-        if (match.getWinnerTeam() == null)
-            return;
-
         MatchResult result = matchResultRepo.findByMatch(match);
         if (result == null) {
+            if (match.getWinnerTeam() == null) {
+                return;
+            }
             lockPredictions(match);
             return;
         }
+
+        // Handle draw situation - award equal points to all predictors
+        if (result.getIsDraw() != null && result.getIsDraw()) {
+            List<Prediction> preds = repo.findByMatch(match);
+            int drawPoints = 5; // Equal points for all when match is drawn
+
+            for (Prediction p : preds) {
+                int totalPoints = drawPoints;
+                int tossPoints = 0;
+                int momPoints = 0;
+                int topScorerPoints = 0;
+
+                Team actualTossWinner = result.getTossWinner();
+                String actualMoM = result.getManOfTheMatch();
+                String actualTopScorer = result.getTopScorer();
+
+                // Still award points for correct toss, MoM, and top scorer predictions
+                if (actualTossWinner != null && p.getPredictedTossWinner() != null &&
+                        p.getPredictedTossWinner().getTeamId().equals(actualTossWinner.getTeamId())) {
+                    tossPoints = 2;
+                    totalPoints += tossPoints;
+                    System.out.println("User " + p.getUser().getUserId() + ": Toss Winner correct! +2 points");
+                }
+
+                if (actualMoM != null && !actualMoM.trim().isEmpty() &&
+                        p.getPredictedManOfTheMatch() != null &&
+                        !p.getPredictedManOfTheMatch().trim().isEmpty()) {
+                    if (p.getPredictedManOfTheMatch().trim().equalsIgnoreCase(actualMoM.trim())) {
+                        momPoints = 3;
+                        totalPoints += momPoints;
+                        System.out.println("User " + p.getUser().getUserId() + ": MoM correct! +3 points");
+                    }
+                }
+
+                if (actualTopScorer != null && !actualTopScorer.trim().isEmpty() &&
+                        p.getPredictedTopScorer() != null &&
+                        !p.getPredictedTopScorer().trim().isEmpty()) {
+                    if (p.getPredictedTopScorer().trim().equalsIgnoreCase(actualTopScorer.trim())) {
+                        topScorerPoints = 3;
+                        totalPoints += topScorerPoints;
+                        System.out.println("User " + p.getUser().getUserId() + ": Top Scorer correct! +3 points");
+                    }
+                }
+
+                System.out.println("User " + p.getUser().getUserId() + " (DRAW): total points: " + totalPoints +
+                        " (Draw:" + drawPoints + " Toss:" + tossPoints + " MoM:" + momPoints + " TopScorer:"
+                        + topScorerPoints + ")");
+
+                p.setPointsAwarded(totalPoints);
+                p.setLocked(true);
+                repo.update(p);
+
+                PointsHistory history = PointsHistory.builder()
+                        .user(p.getUser())
+                        .match(match)
+                        .points(totalPoints)
+                        .timestamp(LocalDateTime.now())
+                        .build();
+
+                pointsHistoryRepo.save(history);
+            }
+            return;
+        }
+
+        // Normal match result (not a draw)
+        if (match.getWinnerTeam() == null)
+            return;
 
         Team actualWinner = result.getWinnerTeam();
         Team actualTossWinner = result.getTossWinner();
