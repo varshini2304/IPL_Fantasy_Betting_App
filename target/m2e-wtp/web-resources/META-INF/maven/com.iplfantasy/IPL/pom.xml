@@ -16,10 +16,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <!-- ===================== DEPENDENCIES ===================== -->
     <dependencies>
 
-        <!-- ===== SPRING FRAMEWORK 6 ===== -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
@@ -56,7 +54,6 @@
             <version>6.2.1</version>
         </dependency>
 
-        <!-- ===== HIBERNATE 6 ===== -->
         <dependency>
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
@@ -69,7 +66,6 @@
             <version>8.0.1.Final</version>
         </dependency>
 
-        <!-- ===== JAKARTA EE ===== -->
         <dependency>
             <groupId>jakarta.persistence</groupId>
             <artifactId>jakarta.persistence-api</artifactId>
@@ -102,7 +98,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- ===== JSTL + EL (Tomcat 10 FIX) ===== -->
         <dependency>
             <groupId>jakarta.servlet.jsp.jstl</groupId>
             <artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
@@ -114,7 +109,6 @@
             <artifactId>jakarta.servlet.jsp.jstl</artifactId>
             <version>3.0.1</version>
         </dependency>
-<!-- JAKARTA EL API (Tomcat 10 compatible) -->
 <dependency>
     <groupId>jakarta.el</groupId>
     <artifactId>jakarta.el-api</artifactId>
@@ -124,14 +118,12 @@
 
       
 
-        <!-- ===== DATABASE ===== -->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <version>9.1.0</version>
         </dependency>
 
-        <!-- ===== FILE UPLOAD ===== -->
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
@@ -144,21 +136,18 @@
             <version>2.15.1</version>
         </dependency>
 
-        <!-- ===== SECURITY (PASSWORD ENCODING) ===== -->
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-crypto</artifactId>
             <version>6.3.1</version>
         </dependency>
 
-        <!-- ===== LOGGING ===== -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j2-impl</artifactId>
             <version>2.22.1</version>
         </dependency>
 
-        <!-- ===== LOMBOK ===== -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -166,7 +155,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- ===== TESTING ===== -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
@@ -176,13 +164,11 @@
 
     </dependencies>
 
-    <!-- ===================== BUILD ===================== -->
     <build>
         <finalName>IPL</finalName>
 
         <plugins>
 
-            <!-- JAVA COMPILER -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -196,7 +182,6 @@
                 </configuration>
             </plugin>
 
-            <!-- WAR PACKAGING -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
@@ -206,7 +191,6 @@
                 </configuration>
             </plugin>
 
-            <!-- TEST RUNNER -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>

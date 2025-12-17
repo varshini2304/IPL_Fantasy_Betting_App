@@ -46,7 +46,10 @@ public class CSVImportController {
             boolean header = true;
 
             while ((line = br.readLine()) != null) {
-                if (header) { header = false; continue; }
+                if (header) {
+                    header = false;
+                    continue;
+                }
                 String[] arr = line.split(",");
                 teamService.createOrUpdate(arr[0].trim(), Integer.parseInt(arr[1].trim()));
                 count++;

@@ -18,8 +18,9 @@ public class Team {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long teamId;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, unique = true, length = 50)
-    private String teamName;
+    private TeamName teamName;
 
     @Column(nullable = false)
     private int currentPoints;

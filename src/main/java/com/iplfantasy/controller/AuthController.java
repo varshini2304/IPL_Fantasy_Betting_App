@@ -1,5 +1,8 @@
 package com.iplfantasy.controller;
 
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,12 +20,14 @@ public class AuthController {
     private UserService userService;
 
     @GetMapping("/login")
-    public String loginPage(HttpSession session) {
+    public String loginPage(HttpSession session, HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
         if (session.getAttribute("user") != null) {
             User user = (User) session.getAttribute("user");
-            return user.getUserType() == UserType.ADMIN
-                    ? "redirect:/admin"
-                    : "redirect:/dashboard";
+            String targetPath = user.getUserType() == UserType.ADMIN ? "/admin" : "/dashboard";
+            RequestDispatcher dispatcher = request.getRequestDispatcher(targetPath);
+            dispatcher.forward(request, response);
+            return null;
         }
         return "login";
     }
@@ -32,7 +37,9 @@ public class AuthController {
             @RequestParam String email,
             @RequestParam String password,
             Model model,
-            HttpSession session) {
+            HttpSession session,
+            HttpServletRequest request,
+            HttpServletResponse response) throws Exception {
 
         User user = userService.loginByEmail(email, password);
 
@@ -43,20 +50,21 @@ public class AuthController {
 
         session.setAttribute("user", user);
 
+        // Use redirect for POST requests to avoid method mismatch
         return user.getUserType() == UserType.ADMIN
                 ? "redirect:/admin"
                 : "redirect:/dashboard";
     }
 
     @GetMapping("/admin/login")
-    public String adminLoginPage(HttpSession session) {
+    public String adminLoginPage(HttpSession session, HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
         if (session.getAttribute("user") != null) {
             User user = (User) session.getAttribute("user");
-            if (user.getUserType() == UserType.ADMIN) {
-                return "redirect:/admin";
-            } else {
-                return "redirect:/dashboard";
-            }
+            String targetPath = user.getUserType() == UserType.ADMIN ? "/admin" : "/dashboard";
+            RequestDispatcher dispatcher = request.getRequestDispatcher(targetPath);
+            dispatcher.forward(request, response);
+            return null;
         }
         return "admin_login";
     }
@@ -81,6 +89,7 @@ public class AuthController {
         }
 
         session.setAttribute("user", user);
+        // Use redirect for POST requests
         return "redirect:/admin";
     }
 
@@ -103,12 +112,16 @@ public class AuthController {
             return "register";
         }
 
+        // Use redirect for POST requests
         return "redirect:/login";
     }
 
     @GetMapping("/logout")
-    public String logout(HttpSession session) {
+    public String logout(HttpSession session, HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
         session.invalidate();
-        return "redirect:/login";
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/login");
+        dispatcher.forward(request, response);
+        return null;
     }
 }

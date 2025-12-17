@@ -91,6 +91,7 @@
                             <li><a href="${pageContext.request.contextPath}/match/upcoming">📅 Upcoming Matches</a></li>
                             <li><a href="${pageContext.request.contextPath}/my-predictions">🎯 My Predictions</a></li>
                             <li><a href="${pageContext.request.contextPath}/leaderboard">🏆 Leaderboard</a></li>
+                            <li><a href="${pageContext.request.contextPath}/teams-points">📊 Teams Points</a></li>
                             <li><a href="${pageContext.request.contextPath}/profile">👤 Profile</a></li>
                             <li><a href="${pageContext.request.contextPath}/logout">🚪 Logout</a></li>
                         </ul>

@@ -58,4 +58,17 @@ public class MatchRepository {
                 .setParameter("status3", MatchStatus.COMPLETED)
                 .list();
     }
+
+    public List<Match> findCompletedMatchesByTeam(com.iplfantasy.entity.Team team) {
+        String hql = """
+                FROM Match m
+                WHERE m.matchStatus = :status
+                AND (m.team1 = :team OR m.team2 = :team)
+                """;
+        return session()
+                .createQuery(hql, Match.class)
+                .setParameter("status", MatchStatus.COMPLETED)
+                .setParameter("team", team)
+                .list();
+    }
 }

@@ -38,9 +38,23 @@ public class TeamRepository {
                 .uniqueResult();
     }
 
+    public Team findByTeamName(com.iplfantasy.entity.TeamName teamName) {
+        String hql = "FROM Team WHERE teamName = :tn";
+        return session()
+                .createQuery(hql, Team.class)
+                .setParameter("tn", teamName)
+                .uniqueResult();
+    }
+
     public List<Team> findAll() {
         return session()
                 .createQuery("FROM Team ORDER BY teamName", Team.class)
+                .list();
+    }
+
+    public List<Team> findAllOrderByPointsDesc() {
+        return session()
+                .createQuery("FROM Team ORDER BY currentPoints DESC", Team.class)
                 .list();
     }
 }

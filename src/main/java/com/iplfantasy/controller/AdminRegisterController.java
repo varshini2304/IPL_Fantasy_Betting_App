@@ -9,6 +9,9 @@ import com.iplfantasy.entity.User;
 import com.iplfantasy.entity.UserType;
 import com.iplfantasy.service.AuthService;
 
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -19,16 +22,19 @@ public class AdminRegisterController {
     private AuthService authService;
 
     @GetMapping("/register")
-    public String showAdminRegister(HttpSession session, Model model) {
+    public String showAdminRegister(HttpSession session, Model model, HttpServletRequest request,
+            HttpServletResponse response) throws Exception {
 
         User user = (User) session.getAttribute("user");
         if (user == null || user.getUserType() != UserType.ADMIN) {
-            return "redirect:/admin/login";
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/admin/login");
+            dispatcher.forward(request, response);
+            return null;
         }
 
-        return "admin_register"; 
+        return "admin_register";
     }
-    
+
     @PostMapping("/register")
     public String createAdmin(
             @RequestParam("username") String username,

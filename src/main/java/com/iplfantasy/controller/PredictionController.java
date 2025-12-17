@@ -74,7 +74,6 @@ public class PredictionController {
         return "predict";
     }
 
-    
     @PostMapping("/predict/save")
     public String savePrediction(
             @RequestParam Long matchId,

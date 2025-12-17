@@ -15,6 +15,9 @@ import com.iplfantasy.service.MatchService;
 import com.iplfantasy.service.PlayerService;
 import com.iplfantasy.service.TeamService;
 
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -37,11 +40,15 @@ public class MatchController {
     private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
 
     @GetMapping("/admin/add")
-    public String addMatchPage(HttpSession session, Model model) {
+    public String addMatchPage(HttpSession session, Model model, HttpServletRequest request,
+            HttpServletResponse response) throws Exception {
 
         User u = (User) session.getAttribute("user");
-        if (!isAdmin(u))
-            return "redirect:/admin/login";
+        if (!isAdmin(u)) {
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/admin/login");
+            dispatcher.forward(request, response);
+            return null;
+        }
 
         model.addAttribute("teams", teamService.getAllTeams());
         return "match_add";
@@ -68,11 +75,15 @@ public class MatchController {
     }
 
     @GetMapping("/admin/list")
-    public String listAll(HttpSession session, Model model) {
+    public String listAll(HttpSession session, Model model, HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
 
         User u = (User) session.getAttribute("user");
-        if (!isAdmin(u))
-            return "redirect:/admin/login";
+        if (!isAdmin(u)) {
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/admin/login");
+            dispatcher.forward(request, response);
+            return null;
+        }
 
         model.addAttribute("matches", matchService.getAll());
         model.addAttribute("allTeams", teamService.getAllTeams());
